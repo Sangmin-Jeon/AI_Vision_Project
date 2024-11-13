@@ -1,6 +1,6 @@
 # 군부대 침입자 추적 로봇 
 * 군부대에서 침입자 발생 시 칩입자를 추적하는 로봇
-
+<img src="https://github.com/user-attachments/assets/21ee52c6-9a99-4568-b5dc-ec2688ac5529" width="700" />
 <br>
 
 ## 협업 링크
