@@ -80,36 +80,8 @@
 │   │   │               ├── requires.txt
 │   │   │               ├── top_level.txt
 │   │   │               └── zip-safe
-│   │   └── share
-│   │       ├── ament_index
-│   │       │   └── resource_index
-│   │       │       └── packages
-│   │       │           └── b4_package
-│   │       ├── b4_package
-│   │       │   ├── hook
-│   │       │   │   ├── ament_prefix_path.dsv
-│   │       │   │   ├── ament_prefix_path.ps1
-│   │       │   │   ├── ament_prefix_path.sh
-│   │       │   │   ├── pythonpath.dsv
-│   │       │   │   ├── pythonpath.ps1
-│   │       │   │   └── pythonpath.sh
-│   │       │   ├── package.bash
-│   │       │   ├── package.dsv
-│   │       │   ├── package.ps1
-│   │       │   ├── package.sh
-│   │       │   ├── package.xml
-│   │       │   └── package.zsh
-│   │       └── colcon-core
-│   │           └── packages
-│   │               └── b4_package
-│   ├── local_setup.bash
-│   ├── local_setup.ps1
-│   ├── local_setup.sh
-│   ├── local_setup.zsh
-│   ├── setup.bash
-│   ├── setup.ps1
-│   ├── setup.sh
-│   └── setup.zsh
+
+...
 
 ~~~
 
