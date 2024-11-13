@@ -1,0 +1,41 @@
+running egg_info
+creating ../../build/b4_package/b4_package.egg-info
+writing ../../build/b4_package/b4_package.egg-info/PKG-INFO
+writing dependency_links to ../../build/b4_package/b4_package.egg-info/dependency_links.txt
+writing entry points to ../../build/b4_package/b4_package.egg-info/entry_points.txt
+writing requirements to ../../build/b4_package/b4_package.egg-info/requires.txt
+writing top-level names to ../../build/b4_package/b4_package.egg-info/top_level.txt
+writing manifest file '../../build/b4_package/b4_package.egg-info/SOURCES.txt'
+reading manifest file '../../build/b4_package/b4_package.egg-info/SOURCES.txt'
+writing manifest file '../../build/b4_package/b4_package.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/yeeun/AI_Vision_Project/b4_ws/build/b4_package/build
+creating /home/yeeun/AI_Vision_Project/b4_ws/build/b4_package/build/lib
+creating /home/yeeun/AI_Vision_Project/b4_ws/build/b4_package/build/lib/b4_package
+copying b4_package/__init__.py -> /home/yeeun/AI_Vision_Project/b4_ws/build/b4_package/build/lib/b4_package
+copying b4_package/subscriber_test.py -> /home/yeeun/AI_Vision_Project/b4_ws/build/b4_package/build/lib/b4_package
+copying b4_package/security_alert.py -> /home/yeeun/AI_Vision_Project/b4_ws/build/b4_package/build/lib/b4_package
+running install
+running install_lib
+creating /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages/b4_package
+copying /home/yeeun/AI_Vision_Project/b4_ws/build/b4_package/build/lib/b4_package/__init__.py -> /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages/b4_package
+copying /home/yeeun/AI_Vision_Project/b4_ws/build/b4_package/build/lib/b4_package/subscriber_test.py -> /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages/b4_package
+copying /home/yeeun/AI_Vision_Project/b4_ws/build/b4_package/build/lib/b4_package/security_alert.py -> /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages/b4_package
+byte-compiling /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages/b4_package/__init__.py to __init__.cpython-310.pyc
+byte-compiling /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages/b4_package/subscriber_test.py to subscriber_test.cpython-310.pyc
+byte-compiling /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages/b4_package/security_alert.py to security_alert.cpython-310.pyc
+running install_data
+creating /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/share
+creating /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/share/ament_index
+creating /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/share/ament_index/resource_index
+creating /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/share/ament_index/resource_index/packages
+copying resource/b4_package -> /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/share/ament_index/resource_index/packages
+creating /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/share/b4_package
+copying package.xml -> /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/share/b4_package
+running install_egg_info
+Copying ../../build/b4_package/b4_package.egg-info to /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages/b4_package-0.0.0-py3.10.egg-info
+running install_scripts
+Installing listener script to /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/lib/b4_package
+Installing talker script to /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/lib/b4_package
+writing list of installed files to '/home/yeeun/AI_Vision_Project/b4_ws/build/b4_package/install.log'

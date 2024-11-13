@@ -20,6 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'talker = b4_package.security_alert:main',
+            'listener = b4_package.subscriber_test:main',
         ],
     },
 )
