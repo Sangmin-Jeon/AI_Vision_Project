@@ -1,0 +1,3 @@
+source;share/b4_package/hook/pythonpath.ps1
+source;share/b4_package/hook/pythonpath.dsv
+source;share/b4_package/hook/pythonpath.sh
