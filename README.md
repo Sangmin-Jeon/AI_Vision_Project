@@ -17,6 +17,14 @@
 
 <br>
 
+## 실행 방법
+* [Topic] security_alert
+~~~bash
+ros2 run b4_package security_alert ~/AI_Vision_Project/b4_ws/src/b4_package/best.pt
+~~~
+
+<br>
+
 ## 프로젝트 구조
 ~~~bash
 
