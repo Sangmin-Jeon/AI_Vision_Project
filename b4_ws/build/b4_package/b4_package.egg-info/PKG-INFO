@@ -1,10 +1,10 @@
 Metadata-Version: 2.1
 Name: b4-package
 Version: 0.0.0
-Summary: TODO: Package description
+Summary: ROS 2 package for security alert node.
 Home-page: UNKNOWN
-Maintainer: rokey
-Maintainer-email: [j3k2kk22@gmail.com]
+Maintainer: your_name
+Maintainer-email: your_email@example.com
 License: TODO: License declaration
 Platform: UNKNOWN
 

@@ -28,8 +28,8 @@ class AlertSubscriber(Node):
         cv2.imshow("Received Image", cv_image)
         cv2.waitKey(1)  # 적절한 화면 업데이트를 위해 필요
 
-def main(pt_file='~/AI_Vision_Project/best.pt'):
-    rclpy.init(args=pt_file)
+def main(args=None):
+    rclpy.init(args=args)
     node = AlertSubscriber()
     
     try:
