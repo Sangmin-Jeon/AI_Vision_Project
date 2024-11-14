@@ -26,7 +26,7 @@ class SecurityAlertNode(Node):
         self.get_logger().info(f'Loaded model from {self.pt_file}')
 
         # 웹캠 설정, 인덱스 0인 기본 웹캠 장치를 사용하여 영상을 읽음
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture('/dev/video2')
         if not self.cap.isOpened():
             self.get_logger().error('Could not open video device')  # 카메라가 열리지 않을 경우 오류 메시지
 

@@ -9,6 +9,7 @@ setup.py
 ../../build/b4_package/b4_package.egg-info/top_level.txt
 ../../build/b4_package/b4_package.egg-info/zip-safe
 b4_package/__init__.py
+b4_package/robot_controller.py
 b4_package/security_alert.py
 b4_package/subscriber_test.py
 resource/b4_package

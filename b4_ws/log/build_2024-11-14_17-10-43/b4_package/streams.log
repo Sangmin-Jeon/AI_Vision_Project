@@ -1,0 +1,23 @@
+[1.135s] Invoking command in '/home/yeeun/AI_Vision_Project/b4_ws/src/b4_package': PYTHONPATH=/home/yeeun/AI_Vision_Project/b4_ws/build/b4_package/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/b4_package build --build-base /home/yeeun/AI_Vision_Project/b4_ws/build/b4_package/build install --record /home/yeeun/AI_Vision_Project/b4_ws/build/b4_package/install.log --single-version-externally-managed install_data
+[1.533s] running egg_info
+[1.535s] writing ../../build/b4_package/b4_package.egg-info/PKG-INFO
+[1.535s] writing dependency_links to ../../build/b4_package/b4_package.egg-info/dependency_links.txt
+[1.536s] writing entry points to ../../build/b4_package/b4_package.egg-info/entry_points.txt
+[1.536s] writing requirements to ../../build/b4_package/b4_package.egg-info/requires.txt
+[1.536s] writing top-level names to ../../build/b4_package/b4_package.egg-info/top_level.txt
+[1.539s] reading manifest file '../../build/b4_package/b4_package.egg-info/SOURCES.txt'
+[1.540s] writing manifest file '../../build/b4_package/b4_package.egg-info/SOURCES.txt'
+[1.541s] running build
+[1.541s] running build_py
+[1.541s] running install
+[1.542s] running install_lib
+[1.544s] running install_data
+[1.544s] running install_egg_info
+[1.546s] removing '/home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages/b4_package-0.0.0-py3.10.egg-info' (and everything under it)
+[1.546s] Copying ../../build/b4_package/b4_package.egg-info to /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages/b4_package-0.0.0-py3.10.egg-info
+[1.548s] running install_scripts
+[1.570s] Installing listener script to /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/lib/b4_package
+[1.570s] Installing security_alert script to /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/lib/b4_package
+[1.571s] Installing tracing script to /home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/lib/b4_package
+[1.571s] writing list of installed files to '/home/yeeun/AI_Vision_Project/b4_ws/build/b4_package/install.log'
+[1.621s] Invoked command in '/home/yeeun/AI_Vision_Project/b4_ws/src/b4_package' returned '0': PYTHONPATH=/home/yeeun/AI_Vision_Project/b4_ws/build/b4_package/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/yeeun/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/b4_package build --build-base /home/yeeun/AI_Vision_Project/b4_ws/build/b4_package/build install --record /home/yeeun/AI_Vision_Project/b4_ws/build/b4_package/install.log --single-version-externally-managed install_data

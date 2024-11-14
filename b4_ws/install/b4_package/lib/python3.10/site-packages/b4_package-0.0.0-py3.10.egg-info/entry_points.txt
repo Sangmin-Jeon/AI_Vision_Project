@@ -1,4 +1,5 @@
 [console_scripts]
 listener = b4_package.subscriber_test:main
 security_alert = b4_package.security_alert:main
+tracing = b4_package.robot_controller:main
 

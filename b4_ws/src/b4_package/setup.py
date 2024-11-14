@@ -21,6 +21,7 @@ setup(
         'console_scripts': [
             'security_alert = b4_package.security_alert:main',
             'listener = b4_package.subscriber_test:main',
+            'tracing = b4_package.robot_controller:main',
         ],
     },
 )
