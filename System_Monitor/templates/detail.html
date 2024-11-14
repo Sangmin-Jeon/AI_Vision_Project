@@ -13,13 +13,14 @@
 </head>
 <body>
     <div class="image-container">
-        <img src="{{ url_for('static', filename='images/buger.jpeg') }}" alt="Burger Image" width="300">
+        <!-- 비디오 스트리밍을 위한 이미지 -->
+        <img src="{{ url_for('video_feed') }}" alt="Live Video Feed" width="640" height="480">
     </div>
     
     <div class="buttons">
-        <form action="/image_screen" method="POST">
-            <button type="submit" name="button" value="button1">Button 1</button>
-            <button type="submit" name="button" value="button2">Button 2</button>
+        <form action="/index_screen" method="GET">
+            <button type="submit" name="button" value="button1">GPS 정보</button>
+            <button type="submit" name="button" value="button2">상황 종료</button>
         </form>
     </div>
     <br>

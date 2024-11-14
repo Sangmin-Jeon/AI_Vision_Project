@@ -18,13 +18,14 @@
     </div>
     
     <div class="buttons">
-        <form action="/image_screen" method="POST">
-            <button type="submit" name="button" value="button1">Button 1</button>
+         <!-- 버튼 1 클릭 시 /detail_screen으로 이동 -->
+         <form action="/detail_screen" method="GET">
+            <button type="submit" name="button" value="button1">추적</button>
         </form>
-        
+
         <!-- 버튼 2 클릭 시 index 화면으로 리디렉션되도록 수정 -->
         <form action="/index_screen" method="POST">
-            <button type="submit" name="button" value="button2">Button 2</button>
+            <button type="submit" name="button" value="button2">상황 종료</button>
         </form>
     </div>
     <br>
