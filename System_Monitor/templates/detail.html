@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Image with Buttons</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        .image-container { margin-bottom: 20px; }
+        .buttons { margin-top: 20px; }
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="image-container">
+        <img src="{{ url_for('static', filename='images/buger.jpeg') }}" alt="Burger Image" width="300">
+    </div>
+    
+    <div class="buttons">
+        <form action="/image_screen" method="POST">
+            <button type="submit" name="button" value="button1">Button 1</button>
+            <button type="submit" name="button" value="button2">Button 2</button>
+        </form>
+    </div>
+    <br>
+    <a href="/logout">Logout</a>
+</body>
+</html>

@@ -1,0 +1,17 @@
+package.xml
+setup.cfg
+setup.py
+../../../build/b4_package/b4_package.egg-info/PKG-INFO
+../../../build/b4_package/b4_package.egg-info/SOURCES.txt
+../../../build/b4_package/b4_package.egg-info/dependency_links.txt
+../../../build/b4_package/b4_package.egg-info/entry_points.txt
+../../../build/b4_package/b4_package.egg-info/requires.txt
+../../../build/b4_package/b4_package.egg-info/top_level.txt
+../../../build/b4_package/b4_package.egg-info/zip-safe
+b4_package/__init__.py
+b4_package/security_alert.py
+b4_package/subscriber_test.py
+resource/b4_package
+test/test_copyright.py
+test/test_flake8.py
+test/test_pep257.py

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Image with Buttons</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        .image-container { margin-bottom: 20px; }
+        .buttons { margin-top: 20px; }
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="image-container">
+        <!-- 비디오 스트리밍을 위한 이미지 -->
+        <img src="{{ url_for('video_feed') }}" alt="Live Video Feed" width="640" height="480">
+    </div>
+    
+    <div class="buttons">
+        <form action="/image_screen" method="POST">
+            <button type="submit" name="button" value="button1">Button 1</button>
+        </form>
+        
+        <!-- 버튼 2 클릭 시 index 화면으로 리디렉션되도록 수정 -->
+        <form action="/index_screen" method="POST">
+            <button type="submit" name="button" value="button2">Button 2</button>
+        </form>
+    </div>
+    <br>
+    <a href="/logout">Logout</a>
+</body>
+</html>

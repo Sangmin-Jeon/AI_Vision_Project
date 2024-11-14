@@ -1,0 +1,14 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/rokey/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages",
+        "/home/rokey/AI_Vision_Project/b4_ws/src/install/b4_package/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/rokey/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages",
+        "/home/rokey/AI_Vision_Project/b4_ws/src/install/b4_package/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ]
+}
