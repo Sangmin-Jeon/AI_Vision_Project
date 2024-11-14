@@ -1,0 +1,28 @@
+[0.611s] Invoking command in '/home/rokey/AI_Vision_Project/b4_ws/src/b4_package': PYTHONPATH=/home/rokey/AI_Vision_Project/b4_ws/build/b4_package/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/rokey/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/b4_package build --build-base /home/rokey/AI_Vision_Project/b4_ws/build/b4_package/build install --record /home/rokey/AI_Vision_Project/b4_ws/build/b4_package/install.log --single-version-externally-managed install_data
+[0.893s] running egg_info
+[0.894s] writing ../../build/b4_package/b4_package.egg-info/PKG-INFO
+[0.894s] writing dependency_links to ../../build/b4_package/b4_package.egg-info/dependency_links.txt
+[0.895s] writing entry points to ../../build/b4_package/b4_package.egg-info/entry_points.txt
+[0.895s] writing requirements to ../../build/b4_package/b4_package.egg-info/requires.txt
+[0.895s] writing top-level names to ../../build/b4_package/b4_package.egg-info/top_level.txt
+[0.898s] reading manifest file '../../build/b4_package/b4_package.egg-info/SOURCES.txt'
+[0.899s] writing manifest file '../../build/b4_package/b4_package.egg-info/SOURCES.txt'
+[0.899s] running build
+[0.899s] running build_py
+[0.900s] copying b4_package/security_alert.py -> /home/rokey/AI_Vision_Project/b4_ws/build/b4_package/build/lib/b4_package
+[0.900s] copying b4_package/subscriber_test.py -> /home/rokey/AI_Vision_Project/b4_ws/build/b4_package/build/lib/b4_package
+[0.900s] running install
+[0.901s] running install_lib
+[0.902s] copying /home/rokey/AI_Vision_Project/b4_ws/build/b4_package/build/lib/b4_package/security_alert.py -> /home/rokey/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages/b4_package
+[0.903s] copying /home/rokey/AI_Vision_Project/b4_ws/build/b4_package/build/lib/b4_package/subscriber_test.py -> /home/rokey/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages/b4_package
+[0.903s] byte-compiling /home/rokey/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages/b4_package/security_alert.py to security_alert.cpython-310.pyc
+[0.906s] byte-compiling /home/rokey/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages/b4_package/subscriber_test.py to subscriber_test.cpython-310.pyc
+[0.907s] running install_data
+[0.907s] running install_egg_info
+[0.909s] removing '/home/rokey/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages/b4_package-0.0.0-py3.10.egg-info' (and everything under it)
+[0.910s] Copying ../../build/b4_package/b4_package.egg-info to /home/rokey/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages/b4_package-0.0.0-py3.10.egg-info
+[0.911s] running install_scripts
+[0.933s] Installing listener script to /home/rokey/AI_Vision_Project/b4_ws/install/b4_package/lib/b4_package
+[0.933s] Installing security_alert script to /home/rokey/AI_Vision_Project/b4_ws/install/b4_package/lib/b4_package
+[0.933s] writing list of installed files to '/home/rokey/AI_Vision_Project/b4_ws/build/b4_package/install.log'
+[0.956s] Invoked command in '/home/rokey/AI_Vision_Project/b4_ws/src/b4_package' returned '0': PYTHONPATH=/home/rokey/AI_Vision_Project/b4_ws/build/b4_package/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/rokey/AI_Vision_Project/b4_ws/install/b4_package/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/b4_package build --build-base /home/rokey/AI_Vision_Project/b4_ws/build/b4_package/build install --record /home/rokey/AI_Vision_Project/b4_ws/build/b4_package/install.log --single-version-externally-managed install_data

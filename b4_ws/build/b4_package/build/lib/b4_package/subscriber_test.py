@@ -22,11 +22,13 @@ class AlertSubscriber(Node):
 
     def image_callback(self, msg):
         # ROS2 이미지 메시지를 OpenCV 이미지로 변환
-        cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
-
-        # 수신한 이미지 화면에 표시
-        cv2.imshow("Received Image", cv_image)
-        cv2.waitKey(1)  # 적절한 화면 업데이트를 위해 필요
+        try:
+            cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+            # 수신한 이미지 화면에 표시
+            cv2.imshow("Received Image", cv_image)
+            cv2.waitKey(10)  # 적절한 화면 업데이트를 위해 필요 (여기서 waitKey 값을 증가시킴)
+        except Exception as e:
+            self.get_logger().error(f"Failed to convert image: {str(e)}")
 
 def main(args=None):
     rclpy.init(args=args)
