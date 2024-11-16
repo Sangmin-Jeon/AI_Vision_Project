@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, session, Response
+from flask import Flask, render_template, redirect, url_for, request, session, Response, jsonify
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
@@ -6,6 +6,9 @@ from cv_bridge import CvBridge
 import cv2
 import threading
 import mysql.connector
+from std_msgs.msg import String
+from geometry_msgs.msg import Point
+
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # 세션을 사용하려면 비밀 키가 필요합니다.
@@ -25,11 +28,22 @@ class ImageReceiverNode(Node):
         self.bridge = CvBridge()
         self.latest_image = None
         self.latest_tracing_image = None
+        self.latest_cctv_video = None
         self.isTracing = False
-        self.image_subscriber = self.create_subscription(
-            Image,
-            'detected_image',
-            self.image_callback,
+        self.latest_alert_message = None 
+        self.latest_coord_message = None
+        
+        self.alert_subscriber = self.create_subscription(
+            String,
+            'alert_message',
+            self.alert_msg_callback,
+            10
+        )
+
+        self.coord_subscriber = self.create_subscription(
+            Point,
+            'intrusion_coordinates',
+            self.coord_msg_callback,
             10
         )
 
@@ -40,18 +54,43 @@ class ImageReceiverNode(Node):
             10
         )
 
-    def image_callback(self, msg):
-        print("이미지를 받았습니다!")
-        try:
-            # ROS 이미지를 OpenCV 이미지로 변환 (BGR8 형식)
-            self.latest_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
-            print("이미지 변환 성공!")
+        self.cctv_video_subscriber = self.create_subscription(
+            Image,
+            'cctv_video',
+            self.cctv_video_callback,
+            10
+        )
+    
 
-            # 경고 메시지가 있는 경우 데이터베이스에 저장
-            save_alert_to_db(alert_message="Vehicle entering detected", image=self.latest_image)
+    def alert_msg_callback(self, msg):
+        # String 메시지를 수신했을 때 실행되는 콜백 함수
+        print("경고 메시지를 받았습니다!")
+        
+        try:
+            # 수신한 메시지 출력
+            alert_msg = msg.data
+            self.latest_alert_message = alert_msg
+
+            print(f"Alert message: {alert_msg}") 
+            # 필요에 따라 추가 처리 수행 (예: 데이터베이스에 저장)
+            # save_alert_to_db(alert_message=alert_message)
 
         except Exception as e:
-            self.get_logger().error(f"이미지 변환 에러: {e}")
+            self.get_logger().error(f"경고 메시지 처리 중 에러: {e}")
+
+    def coord_msg_callback(self, msg):        
+        try:
+            # 수신한 메시지 출력
+            coord_msg = {'x': msg.x, 'y': msg.y, 'z': msg.z}
+            self.latest_coord_message = coord_msg
+
+            print(f"Coord: {coord_msg}") 
+
+            # 필요에 따라 추가 처리 수행 (예: 데이터베이스에 저장)
+            # save_alert_to_db(alert_message=alert_message)
+
+        except Exception as e:
+            self.get_logger().error(f"좌표 메시지 처리 중 에러: {e}")
 
     def tracing_image_callback(self, msg):
         print("tracing 이미지를 받았습니다!")
@@ -62,6 +101,18 @@ class ImageReceiverNode(Node):
             print("tracing 이미지 변환 성공!")
         except Exception as e:
             self.get_logger().error(f"tracing 이미지 변환 에러: {e}")
+
+
+    def cctv_video_callback(self, msg):
+        # cctv_video 이미지를 수신하고 화면에 표시
+        try:
+            self.latest_cctv_video = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+
+            # 경고 메시지가 있는 경우 데이터베이스에 저장
+            # save_alert_to_db(alert_message="Vehicle entering detected", image=self.cctv_video)
+        except Exception as e:
+            self.get_logger().error(f"Failed to convert CCTV video: {str(e)}")
+
 
 # 경고 데이터베이스에 저장하는 함수 정의
 def save_alert_to_db(alert_message, image):
@@ -102,6 +153,28 @@ def generate(node):
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
             
 
+# Video feed generator function for CCTV camera
+def gen_cctv_video(node):
+    while True:
+        rclpy.spin_once(node, timeout_sec=0.1)
+        if node.latest_cctv_video is not None:
+            frame = cv2.imencode('.jpg', node.latest_cctv_video)[1].tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+        else:
+            yield b'--frame\r\n\r\n'
+
+# Video feed generator function for robot camera
+def gen_robot_camera(node):
+    while True:
+        rclpy.spin_once(node, timeout_sec=0.1)
+        if node.latest_tracing_image is not None:
+            frame = cv2.imencode('.jpg', node.latest_tracing_image)[1].tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+        else:
+            yield b'--frame\r\n\r\n'
+
 # Flask 라우트 설정
 @app.route('/')
 def index():
@@ -129,14 +202,24 @@ def login():
 def image_screen():
     if 'logged_in' not in session or not session['logged_in']:
         return redirect(url_for('login'))
-
-    # 이미지가 있을 때만 템플릿에 전달
+    
     return render_template('index.html')
 
-# Flask 비디오 스트리밍 라우트
-@app.route('/video_feed')
-def video_feed():
-    return Response(generate(node), mimetype='multipart/x-mixed-replace; boundary=frame')
+@app.route('/get_alert_data')
+def get_alert_data():
+    alert_message = node.latest_alert_message if node.latest_alert_message is not None else "No alert messages"
+    coord_message = node.latest_coord_message if node.latest_coord_message is not None else "No Detected Coord"
+    return jsonify({'alert_message': alert_message, 'coord_message': coord_message})
+
+# Route for the video feed of CCTV
+@app.route('/video_feed_cctv')
+def video_feed_cctv():
+    return Response(gen_cctv_video(node), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# Route for the video feed of robot camera
+@app.route('/video_feed_robot')
+def video_feed_robot():
+    return Response(gen_robot_camera(node), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/detail_screen')
 def detail_screen():
@@ -162,4 +245,4 @@ if __name__ == '__main__':
     ros_thread.start()
 
     # Flask 서버 실행
-    app.run(host='0.0.0.0', port=5001)
+    app.run(host='0.0.0.0', port=5003)

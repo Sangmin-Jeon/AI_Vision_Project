@@ -6,15 +6,66 @@
     <title>Flask Image with Buttons</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        .image-container { margin-bottom: 20px; }
+        .image-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .stream-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .stream-title {
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .stream-video {
+            width: 580px;
+            height: 460px;
+            background-color: #ccc; /* 회색 플레이스홀더 */
+            display: inline-block;
+        }
+        .alert-message {
+            color: red;
+            font-size: 20px;
+            margin-top: 15px;
+        }
         .buttons { margin-top: 20px; }
         button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; }
     </style>
+    <script>
+        function fetchAlertData() {
+            fetch('/get_alert_data')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Alert Data:', data.alert_message); document.getElementById('alert_message').innerText = data.alert_message;
+                    document.getElementById('coord_message').innerText = JSON.stringify(data.coord_message);
+                });
+        }
+        setInterval(fetchAlertData, 3000); // 3초마다 데이터 갱신
+    </script>
 </head>
 <body>
+    <h1>System Monitor</h1>
+    <br>
     <div class="image-container">
-        <!-- 비디오 스트리밍을 위한 이미지 -->
-        <img src="{{ url_for('video_feed') }}" alt="Live Video Feed" width="640" height="480">
+        <div class="stream-box">
+            <div class="stream-title">CCTV Camera</div>
+            <img class="stream-video" src="{{ url_for('video_feed_cctv') }}" alt="CCTV Camera">
+            <!-- 경고 메시지 출력 -->
+            <div class="alert-message">
+                <div id="alert_message">No alert messages</div>
+                <br>
+                <div id="coord_message">No Detected Coord</div>
+            </div>
+        </div>
+        <div class="stream-box">
+            <div class="stream-title">Robot Camera</div>
+            <img class="stream-video" src="{{ url_for('video_feed_robot') }}" alt="Robot Camera">
+        </div>
     </div>
     
     <div class="buttons">

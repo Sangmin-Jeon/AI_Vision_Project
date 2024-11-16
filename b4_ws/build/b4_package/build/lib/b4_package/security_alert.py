@@ -11,8 +11,9 @@ import numpy as np
 import rclpy  # ROS2 파이썬 클라이언트 라이브러리
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from std_msgs.msg import String
+from std_msgs.msg import String, Float64MultiArray
 from cv_bridge import CvBridge  # OpenCV 이미지를 ROS 메시지로 변환
+from geometry_msgs.msg import Point  # 좌표 메시지 타입 추가
 
 # ROS2 노드 클래스 정의
 class SecurityAlertNode(Node):
@@ -38,6 +39,8 @@ class SecurityAlertNode(Node):
         # ROS2 퍼블리셔 설정: 탐지된 이미지와 경고 메시지를 발행
         self.image_publisher = self.create_publisher(Image, 'detected_image', 10)
         self.alert_publisher = self.create_publisher(String, 'alert_message', 10)
+        self.point_publisher = self.create_publisher(Point, 'intrusion_coordinates', 10)  # Intrusion 좌표 퍼블리셔 추가
+        self.video_publisher = self.create_publisher(Image, 'cctv_video', 10)  # 비디오 피드 퍼블리셔 추가
         self.bridge = CvBridge()  # OpenCV 이미지를 ROS 이미지로 변환하기 위한 브릿지 설정
 
         # 경계선 설정을 위해 OpenCV 창을 생성하고 마우스 콜백 함수 등록
@@ -84,6 +87,15 @@ class SecurityAlertNode(Node):
         alert_msg.data = message
         self.alert_publisher.publish(alert_msg)
 
+    def publish_point_coordinates(self, x, y):
+        # Intrusion 좌표 퍼블리시 (geometry_msgs.msg.Point 메시지 사용)
+        point = Point()
+        point.x = float(x)
+        point.y = float(y)
+        point.z = 0.0  # z 좌표는 2D 라서 0으로 설정
+        self.point_publisher.publish(point)
+        self.get_logger().info(f'Intrusion detected at coordinates: ({x}, {y})')
+
     # 프레임을 처리하는 함수
     def process_frame(self):
         if self.frame_sent:
@@ -94,7 +106,8 @@ class SecurityAlertNode(Node):
         if not ret:
             self.get_logger().error('Failed to capture frame')
             return
-
+ 
+        
         # 경계선 그리기
         if self.point1 and self.point2:
             cv2.line(frame, self.point1, self.point2, (0, 0, 255), 2)  # 경계선을 빨간색으로 그림
@@ -123,6 +136,9 @@ class SecurityAlertNode(Node):
                 center_x, center_y = (x1 + x2) // 2, (y1 + y2) // 2
                 cv2.circle(frame, (center_x, center_y), 5, (0, 255, 255), -1)  # 중심점 표시
 
+                # 좌표 퍼블리시 (Point 메시지 사용)
+                self.publish_point_coordinates(center_x, center_y)
+
                 # 이전 위치 저장 및 경계선 넘는지 확인
                 object_id = f"obj_{i}"
                 current_center = (center_x, center_y)
@@ -138,14 +154,15 @@ class SecurityAlertNode(Node):
                 self.previous_positions[object_id] = current_center
                 csv_output.append([x1, y1, x2, y2, confidence, cls])
                 object_count += 1  # 탐지된 물체 수 증가
+        
+        img_msg = self.bridge.cv2_to_imgmsg(frame, encoding='bgr8')
+        self.video_publisher.publish(img_msg) 
 
-        # 경고 메시지 지속적으로 출력 (한 번만 실행)
+        # # 경고 메시지 지속적으로 출력 (한 번만 실행)
         for obj_id, alert in self.object_alert_status.items():
-            if alert and not self.frame_sent:
-                # 경고 메시지 화면에 표시 및 ROS2 메시지 발행
-                cv2.putText(frame, "ALERT: Vehicle entering!", (50, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 3)
-                self.publish_alert(frame, "ALERT: Vehicle entering!")
-                self.frame_sent = True  # 프레임을 한 번만 전송하도록 설정
+           if alert:
+            cv2.putText(frame, "ALERT: Vehicle entering!", (50, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 3)
+            self.publish_alert(frame, "ALERT: Vehicle entering!")  # 경고 발행
 
         # 물체 수 화면에 표시
         cv2.putText(frame, f"Objects_count: {object_count}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
