@@ -9,7 +9,9 @@ import mysql.connector
 from std_msgs.msg import String
 from geometry_msgs.msg import Point
 import time
-
+from geometry_msgs.msg import PoseStamped
+from nav2_msgs.action import NavigateToPose
+from rclpy.action import ActionClient
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # 세션을 사용하려면 비밀 키가 필요합니다.
@@ -17,8 +19,8 @@ app.secret_key = 'your_secret_key'  # 세션을 사용하려면 비밀 키가 �
 # 데이터베이스 연결 설정
 DB_CONFIG = {
     'host': 'localhost',
-    'user': '1234',  # 실제 사용자 이름으로 root 사용
-    'password': '1234',  # root 사용자의 비밀번호
+    'user': '1234',
+    'password': '1234',
     'database': 'SecuritySystem'
 }
 
@@ -31,9 +33,13 @@ class ImageReceiverNode(Node):
         self.latest_tracing_image = None
         self.latest_cctv_video = None
         self.isTracing = False
-        self.latest_alert_message = None 
+        self.latest_alert_message = None
         self.latest_coord_message = None
-        
+
+        # ActionClient 정의
+        self._action_client = ActionClient(self, NavigateToPose, '/navigate_to_pose')
+
+        # 구독자 설정
         self.alert_subscriber = self.create_subscription(
             String,
             'alert_message',
@@ -61,89 +67,56 @@ class ImageReceiverNode(Node):
             self.cctv_video_callback,
             10
         )
-    
+
+    def send_goal(self, x, y, z=0.0, orientation_x=0.0, orientation_y=0.0, orientation_z=0.0, orientation_w=1.0):
+        goal_msg = NavigateToPose.Goal()
+
+        goal_msg.pose.header.stamp = self.get_clock().now().to_msg()
+        goal_msg.pose.header.frame_id = 'map'  # frame_id는 'map'으로 설정
+        goal_msg.pose.pose.position.x = x
+        goal_msg.pose.pose.position.y = y
+        goal_msg.pose.pose.position.z = z
+        goal_msg.pose.pose.orientation.x = orientation_x
+        goal_msg.pose.pose.orientation.y = orientation_y
+        goal_msg.pose.pose.orientation.z = orientation_z
+        goal_msg.pose.pose.orientation.w = orientation_w
+
+        self.get_logger().info(f'Sending goal to robot: x={x}, y={y}, z={z}, orientation=({orientation_x}, {orientation_y}, {orientation_z}, {orientation_w})')
+        
+        self._action_client.wait_for_server()  # 액션 서버가 준비될 때까지 기다림
+        send_goal_future = self._action_client.send_goal_async(goal_msg)
+        send_goal_future.add_done_callback(self.goal_response_callback)
+
+    def goal_response_callback(self, future):
+        result = future.result()
+        if result.accepted:
+            self.get_logger().info("Goal accepted!")
+        else:
+            self.get_logger().info("Goal rejected!")
 
     def alert_msg_callback(self, msg):
-        # String 메시지를 수신했을 때 실행되는 콜백 함수
-        print("경고 메시지를 받았습니다!")
-        
-        try:
-            # 수신한 메시지 출력
-            alert_msg = msg.data
-            self.latest_alert_message = alert_msg
+        self.latest_alert_message = msg.data
+        self.get_logger().info(f"Received alert message: {msg.data}")
 
-            print(f"Alert message: {alert_msg}") 
-            # 필요에 따라 추가 처리 수행 (예: 데이터베이스에 저장)
-            # save_alert_to_db(alert_message=alert_message)
-
-        except Exception as e:
-            self.get_logger().error(f"경고 메시지 처리 중 에러: {e}")
-
-    def coord_msg_callback(self, msg):        
-        try:
-            # 수신한 메시지 출력
-            coord_msg = {'x': msg.x, 'y': msg.y, 'z': msg.z}
-            self.latest_coord_message = coord_msg
-
-            print(f"Coord: {coord_msg}") 
-
-            # 필요에 따라 추가 처리 수행 (예: 데이터베이스에 저장)
-            # save_alert_to_db(alert_message=alert_message)
-
-        except Exception as e:
-            self.get_logger().error(f"좌표 메시지 처리 중 에러: {e}")
+    def coord_msg_callback(self, msg):
+        self.latest_coord_message = {'x': msg.x, 'y': msg.y, 'z': msg.z}
+        self.get_logger().info(f"Received coordinates: {self.latest_coord_message}")
 
     def tracing_image_callback(self, msg):
-        print("tracing 이미지를 받았습니다!")
         try:
-            # ROS 이미지를 OpenCV 이미지로 변환 (BGR8 형식)
             self.latest_tracing_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
             self.isTracing = True
-            print("tracing 이미지 변환 성공!")
+            self.get_logger().info("Received tracing image")
         except Exception as e:
-            self.get_logger().error(f"tracing 이미지 변환 에러: {e}")
-
+            self.get_logger().error(f"Error converting tracing image: {e}")
 
     def cctv_video_callback(self, msg):
-        # cctv_video 이미지를 수신하고 화면에 표시
         try:
-            self.latest_cctv_video = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
-
-            # 경고 메시지가 있는 경우 데이터베이스에 저장
-            # save_alert_to_db(alert_message="Vehicle entering detected", image=self.cctv_video)
+            self.latest_cctv_video = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+            self.get_logger().info("Received CCTV video")
         except Exception as e:
-            self.get_logger().error(f"Failed to convert CCTV video: {str(e)}")
+            self.get_logger().error(f"Error converting CCTV video: {e}")
 
-
-# 경고 데이터베이스에 저장하는 함수 정의
-def save_alert_to_db(alert_message, image):
-    try:
-        # 데이터베이스에 연결
-        connection = mysql.connector.connect(**DB_CONFIG)
-        cursor = connection.cursor()
-
-        # 이미지를 바이너리 데이터로 변환
-        _, encoded_image = cv2.imencode('.jpg', image)
-        image_binary = encoded_image.tobytes()
-
-        # 데이터베이스에 데이터 삽입
-        query = "INSERT INTO alerts (alert_message, image) VALUES (%s, %s)"
-        cursor.execute(query, (alert_message, image_binary))
-        connection.commit()
-        print("데이터베이스에 경고 정보 저장 성공")
-
-    except mysql.connector.Error as err:
-        print(f"데이터베이스 에러: {err}")
-
-    finally:
-        if connection.is_connected():
-            cursor.close()
-            connection.close()
-
-def ros_spin_thread(node):
-    while rclpy.ok():
-        rclpy.spin_once(node, timeout_sec=0.1)
-            
 
 # Video feed generator function for CCTV camera
 def gen_cctv_video(node):
@@ -155,7 +128,7 @@ def gen_cctv_video(node):
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
         else:
-            time.sleep(0.1)  # 비동기적으로 대기
+            time.sleep(0.1)
 
 # Video feed generator function for robot camera
 def gen_robot_camera(node):
@@ -167,29 +140,118 @@ def gen_robot_camera(node):
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
         else:
-            time.sleep(0.1)  # 비동기적으로 대기
+            time.sleep(0.1)
 
 # Flask 라우트 설정
 @app.route('/')
 def index():
-    # 로그인 상태 확인
     if 'logged_in' in session and session['logged_in']:
         return redirect(url_for('image_screen'))
     return redirect(url_for('login'))
+
+@app.route('/send_goal', methods=['POST'])
+def send_goal():
+    # 하드코딩된 좌표값
+    x = -1.702646583635383
+    y = -0.09896343645916243
+    z = 0.0
+    orientation_x = 0.0
+    orientation_y = 0.0
+    orientation_z = 0.09822234723903406
+    orientation_w = 0.9951644941932236
+
+    try:
+        # ROS2 액션 클라이언트를 통해 목표를 전송
+        node.send_goal(x, y, z, orientation_x, orientation_y, orientation_z, orientation_w)
+        
+        return jsonify({"status": "Moving Goal sent to robot successfully!"}), 200
+    except Exception as e:
+        return jsonify({"status": f"Error: {str(e)}"}), 500
+    
+def send_end_goal():
+    # 여러 목표 좌표 정의
+    goals = [
+        {
+            'x': 0.24296722586148772,
+            'y': -0.03581842329189083,
+            'z': 0.0,
+            'orientation_x': 0.0,
+            'orientation_y': 0.0,
+            'orientation_z': 0.19234058671653168,
+            'orientation_w': 0.9813282318885667
+        },
+        {
+            'x': 0.27136501536292423,
+            'y': -0.5584630186824578,
+            'z': 0.0,
+            'orientation_x': 0.0,
+            'orientation_y': 0.0,
+            'orientation_z': -0.09671299989353907,
+            'orientation_w': 0.9953123106098871
+        },
+        {
+            'x': -0.10077109740665147,
+            'y': -0.10310046161971373,
+            'z': 0.0,
+            'orientation_x': 0.0,
+            'orientation_y': 0.0,
+            'orientation_z': -0.04165615445343232,
+            'orientation_w': 0.9991320056910157
+        }
+    ]
+    
+    # 각 목표를 순차적으로 전송하고 완료 후 다음 목표로 이동
+    def send_goal_sequence(goals):
+        def goal_response_callback(future, goal):
+            result = future.result()
+            if result.accepted:
+                node.get_logger().info(f"Goal accepted: {goal}")
+                # 목표가 완료되면 다음 목표를 전송
+                send_next_goal()
+            else:
+                node.get_logger().info(f"Goal rejected: {goal}")
+            
+
+        def send_next_goal():
+            if goals:
+                goal = goals.pop(0)  # 리스트에서 첫 번째 목표를 가져옴
+                node.get_logger().info(f"Sending next goal: {goal}")
+                goal_msg = NavigateToPose.Goal()
+                goal_msg.pose.header.stamp = node.get_clock().now().to_msg()
+                goal_msg.pose.header.frame_id = 'map'  # 'map' frame
+                goal_msg.pose.pose.position.x = goal['x']
+                goal_msg.pose.pose.position.y = goal['y']
+                goal_msg.pose.pose.position.z = goal['z']
+                goal_msg.pose.pose.orientation.x = goal['orientation_x']
+                goal_msg.pose.pose.orientation.y = goal['orientation_y']
+                goal_msg.pose.pose.orientation.z = goal['orientation_z']
+                goal_msg.pose.pose.orientation.w = goal['orientation_w']
+                
+                # 목표를 전송하고 응답을 기다림
+                send_goal_future = node._action_client.send_goal_async(goal_msg)
+                send_goal_future.add_done_callback(lambda future: goal_response_callback(future, goal))
+            else:
+                node.get_logger().info("All goals completed")
+
+        send_next_goal()  # 첫 번째 목표를 전송
+
+    # 목표를 순차적으로 전송
+    send_goal_sequence(goals)
+
+    return jsonify({"status": "All goals sent to robot successfully!"}), 200
+
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        
-        # 간단한 로그인 검증 (여기서는 사용자와 비밀번호를 하드코딩)
         if username == 'user' and password == 'password':
             session['logged_in'] = True
             return redirect(url_for('image_screen'))
         else:
             return 'Invalid credentials, please try again.'
-    
     return render_template('login.html')
 
 @app.route('/image_screen')
@@ -201,16 +263,14 @@ def image_screen():
 
 @app.route('/get_alert_data')
 def get_alert_data():
-    alert_message = node.latest_alert_message if node.latest_alert_message is not None else "No alert messages"
-    coord_message = node.latest_coord_message if node.latest_coord_message is not None else "No Detected Coord"
+    alert_message = node.latest_alert_message if node.latest_alert_message else "No alert messages"
+    coord_message = node.latest_coord_message if node.latest_coord_message else "No Detected Coord"
     return jsonify({'alert_message': alert_message, 'coord_message': coord_message})
 
-# Route for the video feed of CCTV
 @app.route('/video_feed_cctv')
 def video_feed_cctv():
     return Response(gen_cctv_video(node), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# Route for the video feed of robot camera
 @app.route('/video_feed_robot')
 def video_feed_robot():
     return Response(gen_robot_camera(node), mimetype='multipart/x-mixed-replace; boundary=frame')
@@ -222,7 +282,6 @@ def detail_screen():
 
 @app.route('/index_screen', methods=['POST'])
 def index_screen():
-    # 버튼 2 클릭 시 index로 리디렉션
     return redirect(url_for('image_screen'))
 
 @app.route('/logout')
@@ -230,9 +289,13 @@ def logout():
     session.pop('logged_in', None)
     return redirect(url_for('login'))
 
+def ros_spin_thread(node):
+    while rclpy.ok():
+        rclpy.spin_once(node, timeout_sec=0.1)
+
 if __name__ == '__main__':
     rclpy.init()
-    node = ImageReceiverNode()  # ROS 노드 인스턴스 생성
+    node = ImageReceiverNode()
     ros_thread = threading.Thread(target=ros_spin_thread, args=(node,))
     ros_thread.daemon = True
     ros_thread.start()

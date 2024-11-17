@@ -37,14 +37,60 @@
         button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; }
     </style>
     <script>
+        // 경고 메시지 및 좌표 데이터를 주기적으로 가져오기
         function fetchAlertData() {
             fetch('/get_alert_data')
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Alert Data:', data.alert_message); document.getElementById('alert_message').innerText = data.alert_message;
+                    console.log('Alert Data:', data.alert_message); 
+                    document.getElementById('alert_message').innerText = data.alert_message;
                     document.getElementById('coord_message').innerText = JSON.stringify(data.coord_message);
+                })
+                .catch(error => {
+                    console.error('Error fetching alert data:', error);
                 });
         }
+
+        // 추적 버튼 클릭 시 목표 좌표를 전송하는 함수
+        function sendGoal() {
+            fetch('/send_goal', {
+                method: 'POST', 
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({})  // 서버에서 추가 데이터를 처리하도록 수정할 수 있음
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.status);
+                alert(data.status);  // 서버에서 받은 상태 메시지 표시
+            })
+            .catch(error => {
+                alert('Error sending goal.');
+                console.error('Error:', error);
+            });
+        }
+
+        function sendEndGoal() {
+            fetch('/send_end_goal', {
+                method: 'POST', 
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({})  // 서버에서 추가 데이터를 처리하도록 수정할 수 있음
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.status);
+                alert(data.status);  // 서버에서 받은 상태 메시지 표시
+            })
+            .catch(error => {
+                alert('Error sending goal.');
+                console.error('Error:', error);
+            });
+        }
+
+        // 3초마다 경고 메시지와 좌표를 갱신
         setInterval(fetchAlertData, 3000); // 3초마다 데이터 갱신
     </script>
 </head>
@@ -52,6 +98,7 @@
     <h1>System Monitor</h1>
     <br>
     <div class="image-container">
+        <!-- CCTV 카메라 스트리밍 -->
         <div class="stream-box">
             <div class="stream-title">CCTV Camera</div>
             <img class="stream-video" src="{{ url_for('video_feed_cctv') }}" alt="CCTV Camera">
@@ -62,22 +109,20 @@
                 <div id="coord_message">No Detected Coord</div>
             </div>
         </div>
+        <!-- 로봇 카메라 스트리밍 -->
         <div class="stream-box">
             <div class="stream-title">Robot Camera</div>
             <img class="stream-video" src="{{ url_for('video_feed_robot') }}" alt="Robot Camera">
         </div>
     </div>
     
+    <!-- 버튼들 -->
     <div class="buttons">
-         <!-- 버튼 1 클릭 시 /detail_screen으로 이동 -->
-         <form action="/detail_screen" method="GET">
-            <button type="submit" name="button" value="button1">추적</button>
-        </form>
+        <!-- 추적 버튼 클릭 시 목표 좌표를 로봇으로 전송 -->
+        <button onclick="sendGoal()">추적</button>
 
-        <!-- 버튼 2 클릭 시 index 화면으로 리디렉션되도록 수정 -->
-        <form action="/index_screen" method="POST">
-            <button type="submit" name="button" value="button2">상황 종료</button>
-        </form>
+        <!-- 상황 종료 버튼 -->
+        <button onclick="sendEndGoal()">상황 종료</button>
     </div>
     <br>
     <a href="/logout">Logout</a>
