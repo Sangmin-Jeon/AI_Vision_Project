@@ -8,6 +8,7 @@ import threading
 import mysql.connector
 from std_msgs.msg import String
 from geometry_msgs.msg import Point
+import time
 
 
 app = Flask(__name__)
@@ -139,41 +140,34 @@ def save_alert_to_db(alert_message, image):
             cursor.close()
             connection.close()
 
-# Flask 비디오 스트림 생성
-def generate(node):
+def ros_spin_thread(node):
     while rclpy.ok():
-        if node.latest_image is not None:
-            if node.isTracing:
-                _, jpeg = cv2.imencode('.jpg', node.latest_tracing_image)
-            else:
-                _, jpeg = cv2.imencode('.jpg', node.latest_image)
-                
-            frame = jpeg.tobytes()
-            yield (b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+        rclpy.spin_once(node, timeout_sec=0.1)
             
 
 # Video feed generator function for CCTV camera
 def gen_cctv_video(node):
     while True:
-        rclpy.spin_once(node, timeout_sec=0.1)
         if node.latest_cctv_video is not None:
-            frame = cv2.imencode('.jpg', node.latest_cctv_video)[1].tobytes()
+            resized_frame = cv2.resize(node.latest_cctv_video, (320, 240))
+            _, jpeg = cv2.imencode('.jpg', resized_frame)
+            frame = jpeg.tobytes()
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
         else:
-            yield b'--frame\r\n\r\n'
+            time.sleep(0.1)  # 비동기적으로 대기
 
 # Video feed generator function for robot camera
 def gen_robot_camera(node):
     while True:
-        rclpy.spin_once(node, timeout_sec=0.1)
         if node.latest_tracing_image is not None:
-            frame = cv2.imencode('.jpg', node.latest_tracing_image)[1].tobytes()
+            resized_frame = cv2.resize(node.latest_tracing_image, (320, 240))
+            _, jpeg = cv2.imencode('.jpg', resized_frame)
+            frame = jpeg.tobytes()
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
         else:
-            yield b'--frame\r\n\r\n'
+            time.sleep(0.1)  # 비동기적으로 대기
 
 # Flask 라우트 설정
 @app.route('/')
@@ -237,12 +231,9 @@ def logout():
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    # ROS2 노드를 백그라운드에서 실행
     rclpy.init()
-    node = ImageReceiverNode()  # node 인스턴스를 한 번만 생성
-    ros_thread = threading.Thread(target=rclpy.spin, args=(node,))
+    node = ImageReceiverNode()  # ROS 노드 인스턴스 생성
+    ros_thread = threading.Thread(target=ros_spin_thread, args=(node,))
     ros_thread.daemon = True
     ros_thread.start()
-
-    # Flask 서버 실행
-    app.run(host='0.0.0.0', port=5003)
+    app.run(host='0.0.0.0', port=5001)
