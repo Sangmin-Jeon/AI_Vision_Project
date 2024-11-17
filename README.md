@@ -18,9 +18,37 @@
 <br>
 
 ## 실행 방법
-* [Topic] security_alert
+
+### - Laptop PC
+* [CCTV] AI_Vision_Project/b4_ws/.../security_alert.py
 ~~~bash
 ros2 run b4_package security_alert ~/AI_Vision_Project/b4_ws/src/b4_package/best.pt
+~~~
+
+* [Flask] System_Monitor/main.py
+~~~
+main.py 파일 실행
+~~~
+
+### - Turtlebot3 (Jetson nano)
+* [Robot]
+~~~bash
+ros2 launch turtlebot3_bringup robot.launch.py
+~~~
+
+* [Robot]
+~~~bash
+ros2 launch turtlebot3_navigation2 navigation2.launch.py map:=$HOME/tb_ws_map.yaml
+~~~
+* [Robot] AI_Vision_Project/b4_ws/.../robot_controller.py
+~~~bash
+ros2 run b4_package tracing ~/AI_Vision_Project/b4_ws/src/b4_package/best.pt
+~~~
+
+### - 기타 테스트용 명령어
+* 1번 좌표로 이동
+~~~bash
+ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose "{pose: {header: {stamp: {sec: 0, nanosec: 0}, frame_id: 'map'}, pose: {position: {x: -1.702646583635383, y: -0.09896343645916243, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.09822234723903406, w: 0.9951644941932236}}}}"
 ~~~
 
 #### - 추후 추가 예정
