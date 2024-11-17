@@ -29,15 +29,34 @@
             display: inline-block;
         }
         .alert-message {
-            color: red;
+            color: blue;
             font-size: 20px;
             margin-top: 15px;
         }
         .buttons { margin-top: 20px; }
         button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; }
+        
+        /* 화면 깜빡임 효과를 위한 스타일 */
+        @keyframes flash {
+            0%, 100% { background-color: white; }
+            50% { background-color: red; }
+        }
+        .flashing {
+            animation: flash 0.5s ease-in-out 3;
+        }
     </style>
     <script>
         // 경고 메시지 및 좌표 데이터를 주기적으로 가져오기
+        let alertInterval;
+        
+        function startAlertDataFetch() {
+            alertInterval = setInterval(fetchAlertData, 3000); // 3초마다 데이터 갱신
+        }
+
+        function stopAlertDataFetch() {
+            clearInterval(alertInterval);
+        }
+
         function fetchAlertData() {
             fetch('/get_alert_data')
                 .then(response => response.json())
@@ -45,14 +64,33 @@
                     console.log('Alert Data:', data.alert_message); 
                     document.getElementById('alert_message').innerText = data.alert_message;
                     document.getElementById('coord_message').innerText = JSON.stringify(data.coord_message);
+
+                    // 경고 메시지가 있을 경우 화면 깜빡임 효과 추가
+                    if (data.alert_message !== 'No alert messages' && !isTracking) {
+                        flashScreen();
+                    }
                 })
                 .catch(error => {
                     console.error('Error fetching alert data:', error);
                 });
         }
 
+        // 화면 깜빡임 효과 함수
+        function flashScreen() {
+            const body = document.body;
+            if (!body.classList.contains('flashing')) {
+                body.classList.add('flashing');
+                setTimeout(() => {
+                    body.classList.remove('flashing');
+                }, 1500); // 3번 깜빡인 후 클래스 제거
+            }
+        }
+
+        let isTracking = false;
+
         // 추적 버튼 클릭 시 목표 좌표를 전송하는 함수
         function sendGoal() {
+            isTracking = true;
             fetch('/send_goal', {
                 method: 'POST', 
                 headers: {
@@ -72,6 +110,8 @@
         }
 
         function sendEndGoal() {
+            isTracking = false;
+            stopAlertDataFetch();
             fetch('/send_end_goal', {
                 method: 'POST', 
                 headers: {
@@ -83,6 +123,7 @@
             .then(data => {
                 console.log(data.status);
                 alert(data.status);  // 서버에서 받은 상태 메시지 표시
+                resetScreen(); // 화면을 초기 상태로 리셋
             })
             .catch(error => {
                 alert('Error sending goal.');
@@ -90,8 +131,15 @@
             });
         }
 
-        // 3초마다 경고 메시지와 좌표를 갱신
-        setInterval(fetchAlertData, 3000); // 3초마다 데이터 갱신
+        // 화면 초기 상태로 리셋하는 함수
+        function resetScreen() {
+            document.getElementById('alert_message').innerText = 'No alert messages';
+            document.getElementById('coord_message').innerText = 'No Detected Coord';
+            startAlertDataFetch();
+        }
+
+        // 초기화 및 주기적인 데이터 갱신 시작
+        startAlertDataFetch();
     </script>
 </head>
 <body>

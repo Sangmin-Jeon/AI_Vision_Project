@@ -168,6 +168,7 @@ def send_goal():
     except Exception as e:
         return jsonify({"status": f"Error: {str(e)}"}), 500
     
+@app.route('/send_end_goal', methods=['POST'])
 def send_end_goal():
     # 여러 목표 좌표 정의
     goals = [
@@ -199,46 +200,47 @@ def send_end_goal():
             'orientation_w': 0.9991320056910157
         }
     ]
-    
-    # 각 목표를 순차적으로 전송하고 완료 후 다음 목표로 이동
+
+    # 목표를 순차적으로 전송하는 함수
     def send_goal_sequence(goals):
-        def goal_response_callback(future, goal):
-            result = future.result()
-            if result.accepted:
-                node.get_logger().info(f"Goal accepted: {goal}")
-                # 목표가 완료되면 다음 목표를 전송
-                send_next_goal()
-            else:
-                node.get_logger().info(f"Goal rejected: {goal}")
+        # goals 리스트가 비어있지 않으면 첫 번째 목표를 가져옴
+        if goals:
+            goal = goals.pop(0)  # 첫 번째 목표를 꺼냄
+            node.get_logger().info(f"Sending next goal: {goal}")
             
+            goal_msg = NavigateToPose.Goal()
+            goal_msg.pose.header.stamp = node.get_clock().now().to_msg()
+            goal_msg.pose.header.frame_id = 'map'  # 'map' frame
+            goal_msg.pose.pose.position.x = goal['x']
+            goal_msg.pose.pose.position.y = goal['y']
+            goal_msg.pose.pose.position.z = goal['z']
+            goal_msg.pose.pose.orientation.x = goal['orientation_x']
+            goal_msg.pose.pose.orientation.y = goal['orientation_y']
+            goal_msg.pose.pose.orientation.z = goal['orientation_z']
+            goal_msg.pose.pose.orientation.w = goal['orientation_w']
+            
+            # 목표를 전송하고 응답을 기다림
+            send_goal_future = node._action_client.send_goal_async(goal_msg)
+            send_goal_future.add_done_callback(lambda future: goal_response_callback(future, goals))
+        else:
+            node.get_logger().info("All goals completed")
 
-        def send_next_goal():
-            if goals:
-                goal = goals.pop(0)  # 리스트에서 첫 번째 목표를 가져옴
-                node.get_logger().info(f"Sending next goal: {goal}")
-                goal_msg = NavigateToPose.Goal()
-                goal_msg.pose.header.stamp = node.get_clock().now().to_msg()
-                goal_msg.pose.header.frame_id = 'map'  # 'map' frame
-                goal_msg.pose.pose.position.x = goal['x']
-                goal_msg.pose.pose.position.y = goal['y']
-                goal_msg.pose.pose.position.z = goal['z']
-                goal_msg.pose.pose.orientation.x = goal['orientation_x']
-                goal_msg.pose.pose.orientation.y = goal['orientation_y']
-                goal_msg.pose.pose.orientation.z = goal['orientation_z']
-                goal_msg.pose.pose.orientation.w = goal['orientation_w']
-                
-                # 목표를 전송하고 응답을 기다림
-                send_goal_future = node._action_client.send_goal_async(goal_msg)
-                send_goal_future.add_done_callback(lambda future: goal_response_callback(future, goal))
-            else:
-                node.get_logger().info("All goals completed")
+    def goal_response_callback(future, goals):
+        result = future.result()
+        if result.accepted:
+            node.get_logger().info("Goal accepted!")
+            # 목표가 완료되면 다음 목표를 전송
+            send_goal_sequence(goals)
+        else:
+            node.get_logger().error("Goal rejected!")
+            # 실패 시 재시도 등의 처리도 가능
+            send_goal_sequence(goals)
 
-        send_next_goal()  # 첫 번째 목표를 전송
-
-    # 목표를 순차적으로 전송
-    send_goal_sequence(goals)
+    send_goal_sequence(goals)  # 첫 번째 목표를 전송
 
     return jsonify({"status": "All goals sent to robot successfully!"}), 200
+
+
 
 
 
